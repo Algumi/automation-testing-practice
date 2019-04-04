@@ -14,11 +14,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class MainTests {
     private WebDriver driver;
     private WebDriverWait waitTest;
+    private int productsOnThePage = 24;
 
     @BeforeClass
     public static void setupClass() {
@@ -112,7 +115,55 @@ public class MainTests {
 
     }
 
-    @AfterTest()
+    @Test
+    public void shoppingTest() {
+        // closing pop-up window
+        driver.findElement(By.className("_1ZYDKa22GJ")).click();
+
+        // click on catalog button
+        driver.findElement(By.className("header2__navigation")).click();
+
+        // waiting for opening the list of categories
+        WebElement categoryList = waitTest.until
+                (ExpectedConditions.presenceOfElementLocated(By.className("popup2__content")));
+        // Mouse over beauty and hygiene category
+        Actions actor = new Actions(driver);
+        actor.moveToElement(categoryList.findElement(By.linkText("Красота и гигиена"))).build().perform();
+        // click on electric toothbrushes subcategory
+        driver.findElement(By.linkText("Электрические зубные щетки")).click();
+
+        // entering price limits
+        driver.findElement(By.id("glpricefrom")).sendKeys("100");
+        WebElement priceTo = driver.findElement(By.id("glpriceto"));
+        //priceTo.sendKeys("1999");
+
+        // waiting for displaying search results
+        WebElement searchResult = waitTest.until(ExpectedConditions.visibilityOfElementLocated
+                (By.className("_1PQIIOelRL")));
+        int pageIterations = getResultNumFromPopus(searchResult.getText());
+
+        // going through all the goods and adding them to the list (TO DO)
+        List<WebElement> goods = new ArrayList<WebElement>();
+        for (int i = productsOnThePage; i < pageIterations; i += productsOnThePage){
+            WebElement goodsList = waitTest.until(ExpectedConditions.visibilityOfElementLocated
+                    (By.className("search-result-snippet")));
+            WebElement showMoreButton = waitTest.until(ExpectedConditions.visibilityOfElementLocated
+                    (By.xpath("/html/body/div[1]/div[2]/div[2]/div[2]/div[4]/div/div[3]/a[2]")));
+            goods.addAll(driver.findElements(By.className("search-result-snippet")));
+            showMoreButton.click();
+        }
+
+        System.out.println("test" + pageIterations);
+        System.out.println(goods.size());
+    }
+
+    private int getResultNumFromPopus(String s)
+    {
+        s = s.substring(8);
+        s = s.substring(0, s.indexOf(' '));
+        return Integer.valueOf(s);
+    }
+    //@AfterTest()
     public void closeBrowser()
     {
         driver.close();
