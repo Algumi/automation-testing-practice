@@ -103,7 +103,7 @@ public class MainTests {
                 (ExpectedConditions.presenceOfElementLocated(By.className("header2__nav")));
         actor.moveToElement(myProfile).build().perform();
         waitTest.until(ExpectedConditions.presenceOfElementLocated(By.className("header2-user-menu")));
-        driver.findElement(By.xpath("/html/body/div[7]/div[2]/div/ul[3]/li[3]/a")).click();
+        driver.findElement(By.className("header2-user-menu")).findElement(By.linkText("Настройки")).click();
         // city name on settings page
         WebElement myCity = waitTest.until(ExpectedConditions.presenceOfElementLocated
                 (By.className("settings-list__title"))).findElement(By.className("link__inner"));
