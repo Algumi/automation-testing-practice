@@ -1,4 +1,7 @@
+import com.google.gson.JsonObject;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -21,7 +24,8 @@ import java.util.concurrent.TimeUnit;
 public class MainTests {
     private WebDriver driver;
     private WebDriverWait waitTest;
-    private int productsOnThePage = 24;
+    private static int productsOnThePage = 24;
+    private static int priceFrom = 999, priceTo = 10999;
 
     @BeforeClass
     public static void setupClass() {
@@ -40,7 +44,7 @@ public class MainTests {
     @Test
     public void signInTest() {
         // closing pop-up window
-        driver.findElement(By.className("_1ZYDKa22GJ")).click();
+        // driver.findElement(By.className("_1ZYDKa22GJ")).click();
 
         // preforms steps to sign in
         SignInSteps.signIn(driver);
@@ -67,7 +71,7 @@ public class MainTests {
     @Test
     public void cityChangeTest() {
         // closing pop-up window
-        driver.findElement(By.className("_1ZYDKa22GJ")).click();
+        // driver.findElement(By.className("_1ZYDKa22GJ")).click();
 
         // element with city name on the top of the main page
         WebElement cityLine = driver.findElement(By.className("region-form-opener"))
@@ -118,7 +122,7 @@ public class MainTests {
     @Test
     public void shoppingTest() {
         // closing pop-up window
-        driver.findElement(By.className("_1ZYDKa22GJ")).click();
+        //driver.findElement(By.className("_1ZYDKa22GJ")).click();
 
         // click on catalog button
         driver.findElement(By.className("header2__navigation")).click();
@@ -133,31 +137,49 @@ public class MainTests {
         driver.findElement(By.linkText("Электрические зубные щетки")).click();
 
         // entering price limits
-        driver.findElement(By.id("glpricefrom")).sendKeys("100");
-        WebElement priceTo = driver.findElement(By.id("glpriceto"));
-        //priceTo.sendKeys("1999");
+        driver.findElement(By.id("glpricefrom")).sendKeys(String.valueOf(priceFrom));
+        driver.findElement(By.id("glpriceto")).sendKeys(String.valueOf(priceTo));
 
         // waiting for displaying search results
         WebElement searchResult = waitTest.until(ExpectedConditions.visibilityOfElementLocated
                 (By.className("_1PQIIOelRL")));
-        int pageIterations = getResultNumFromPopus(searchResult.getText());
+        int pageIterations = (int)Math.ceil((double)getResultNumFromPopup(searchResult.getText()) / productsOnThePage);
 
-        // going through all the goods and adding them to the list (TO DO)
-        List<WebElement> goods = new ArrayList<WebElement>();
-        for (int i = productsOnThePage; i < pageIterations; i += productsOnThePage){
-            WebElement goodsList = waitTest.until(ExpectedConditions.visibilityOfElementLocated
-                    (By.className("search-result-snippet")));
-            WebElement showMoreButton = waitTest.until(ExpectedConditions.visibilityOfElementLocated
-                    (By.xpath("/html/body/div[1]/div[2]/div[2]/div[2]/div[4]/div/div[3]/a[2]")));
-            goods.addAll(driver.findElements(By.className("search-result-snippet")));
-            showMoreButton.click();
+
+
+        // going through all the goods and checking their price
+        for (int i = 1; i <= pageIterations; i++){
+            // waiting for loading of the page of goods
+            waitTest.until(ExpectedConditions.attributeToBe(By.xpath
+                   ("/html/body/div[1]/div[2]/div[2]/div[2]/div[4]/div"), "style", "height: auto;"));
+
+            // collecting all the goods
+            List<WebElement> goods;
+            goods = driver.findElements(By.className("grid-snippet_react"));
+
+            // checking all the goods on the current page
+            for (int j = 0; j < goods.size(); j++) {
+                // Reads json info about the product
+                String bem_str = goods.get(j).getAttribute("data-bem");
+                try {
+                    JSONObject obj = new JSONObject(bem_str);
+                    int price = obj.getJSONObject("grid-snippet").getInt("price");
+                    System.out.println(price);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            System.out.println(i);
+            // next page button
+            if (i < pageIterations) {
+                WebElement nextPageGoods = driver.findElement(By.xpath
+                        ("/html/body/div[1]/div[2]/div[2]/div[2]/div[4]/div/div[3]/a[2]"));
+                nextPageGoods.click();
+            }
         }
-
-        System.out.println("test" + pageIterations);
-        System.out.println(goods.size());
     }
 
-    private int getResultNumFromPopus(String s)
+    private int getResultNumFromPopup(String s)
     {
         s = s.substring(8);
         s = s.substring(0, s.indexOf(' '));
