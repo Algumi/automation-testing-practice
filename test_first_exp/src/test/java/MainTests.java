@@ -25,7 +25,7 @@ public class MainTests {
     private WebDriver driver;
     private WebDriverWait waitTest;
     private static int productsOnThePage = 24;
-    private static int priceFrom = 999, priceTo = 10999;
+    private static int priceFrom = 999, priceTo = 1999;
 
     @BeforeClass
     public static void setupClass() {
@@ -43,9 +43,6 @@ public class MainTests {
 
     @Test
     public void signInTest() {
-        // closing pop-up window
-        // driver.findElement(By.className("_1ZYDKa22GJ")).click();
-
         // preforms steps to sign in
         SignInSteps.signIn(driver);
 
@@ -70,9 +67,6 @@ public class MainTests {
 
     @Test
     public void cityChangeTest() {
-        // closing pop-up window
-        // driver.findElement(By.className("_1ZYDKa22GJ")).click();
-
         // element with city name on the top of the main page
         WebElement cityLine = driver.findElement(By.className("region-form-opener"))
                 .findElement(By.className("link__inner"));
@@ -121,9 +115,6 @@ public class MainTests {
 
     @Test
     public void shoppingTest() {
-        // closing pop-up window
-        //driver.findElement(By.className("_1ZYDKa22GJ")).click();
-
         // click on catalog button
         driver.findElement(By.className("header2__navigation")).click();
 
@@ -143,10 +134,11 @@ public class MainTests {
         // waiting for displaying search results
         WebElement searchResult = waitTest.until(ExpectedConditions.visibilityOfElementLocated
                 (By.className("_1PQIIOelRL")));
-        int pageIterations = (int)Math.ceil((double)getResultNumFromPopup(searchResult.getText()) / productsOnThePage);
+        int goodsWasFound = getResultNumFromPopup(searchResult.getText());
+        int pageIterations = (int)Math.ceil((double)goodsWasFound / productsOnThePage);
+        int goodsRealQuantity = 0;
 
-
-
+        boolean wasIncorrectPrice = false;
         // going through all the goods and checking their price
         for (int i = 1; i <= pageIterations; i++){
             // waiting for loading of the page of goods
@@ -156,6 +148,7 @@ public class MainTests {
             // collecting all the goods
             List<WebElement> goods;
             goods = driver.findElements(By.className("grid-snippet_react"));
+            goodsRealQuantity += goods.size();
 
             // checking all the goods on the current page
             for (int j = 0; j < goods.size(); j++) {
@@ -164,19 +157,35 @@ public class MainTests {
                 try {
                     JSONObject obj = new JSONObject(bem_str);
                     int price = obj.getJSONObject("grid-snippet").getInt("price");
-                    System.out.println(price);
+                    if (price > priceTo || price <  priceFrom)
+                        wasIncorrectPrice = true;
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-            System.out.println(i);
-            // next page button
+
+            // click on "next page" button if the page is not last
             if (i < pageIterations) {
                 WebElement nextPageGoods = driver.findElement(By.xpath
                         ("/html/body/div[1]/div[2]/div[2]/div[2]/div[4]/div/div[3]/a[2]"));
                 nextPageGoods.click();
             }
         }
+
+        // fail test if there were any goods with incorrect price
+        Assert.assertFalse(wasIncorrectPrice, "There was a good with price that doesn't belong to the price range");
+        // fail test if expected number of goods doesn't match actual number
+        Assert.assertEquals(goodsRealQuantity, goodsWasFound,
+                "Number of goods in the popup info doesn't match the number of goods found on the result pages");
+
+        // need to buy penultimate product in the list (if there is only 1 product on the last page)
+        if (goodsWasFound % productsOnThePage == 1){
+            WebElement prevPageGoods = driver.findElement(By.xpath
+                    ("/html/body/div[1]/div[2]/div[2]/div[2]/div[4]/div/div[3]/a"));
+            prevPageGoods.click();
+        }
+
+        
     }
 
     private int getResultNumFromPopup(String s)
