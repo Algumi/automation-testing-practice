@@ -16,16 +16,15 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+
 
 public class MainTests {
     private WebDriver driver;
     private WebDriverWait waitTest;
     private static int productsOnThePage = 24;
     private static int priceFrom = 999, priceTo = 1999;
+    private static int freeDeliverySum = 2499;
 
     @BeforeClass
     public static void setupClass() {
@@ -108,7 +107,7 @@ public class MainTests {
         cityLine = driver.findElement(By.className("region-form-opener")).findElement(By.className("link__inner"));
 
         Assert.assertEquals(cityLine.getText(), myCity.getText(),
-                "City name on the top of the page is not equal to the city name in settings");
+                "City name on the top of the page is not equal to the city name in settings.");
 
 
     }
@@ -142,8 +141,8 @@ public class MainTests {
         // going through all the goods and checking their price
         for (int i = 1; i <= pageIterations; i++){
             // waiting for loading of the page of goods
-            waitTest.until(ExpectedConditions.attributeToBe(By.xpath
-                   ("/html/body/div[1]/div[2]/div[2]/div[2]/div[4]/div"), "style", "height: auto;"));
+            waitTest.until(ExpectedConditions.attributeToBe(By.className
+                   ("n-filter-applied-results__content"), "style", "height: auto;"));
 
             // collecting all the goods
             List<WebElement> goods;
@@ -165,27 +164,68 @@ public class MainTests {
             }
 
             // click on "next page" button if the page is not last
-            if (i < pageIterations) {
-                WebElement nextPageGoods = driver.findElement(By.xpath
-                        ("/html/body/div[1]/div[2]/div[2]/div[2]/div[4]/div/div[3]/a[2]"));
-                nextPageGoods.click();
-            }
+            if (i < pageIterations)
+                driver.findElement(By.className("n-pager__button-next")).click();
         }
 
         // fail test if there were any goods with incorrect price
-        Assert.assertFalse(wasIncorrectPrice, "There was a good with price that doesn't belong to the price range");
+        Assert.assertFalse(wasIncorrectPrice, "There was a good with price that doesn't belong to the price range.");
         // fail test if expected number of goods doesn't match actual number
         Assert.assertEquals(goodsRealQuantity, goodsWasFound,
-                "Number of goods in the popup info doesn't match the number of goods found on the result pages");
+                "Number of goods in the popup info doesn't match the number of goods found on the result pages.");
 
         // need to buy penultimate product in the list (if there is only 1 product on the last page)
         if (goodsWasFound % productsOnThePage == 1){
-            WebElement prevPageGoods = driver.findElement(By.xpath
-                    ("/html/body/div[1]/div[2]/div[2]/div[2]/div[4]/div/div[3]/a"));
+            WebElement prevPageGoods = driver.findElement(By.className("n-pager__button-prev"));
             prevPageGoods.click();
         }
 
-        
+        // add penultimate product to the cart
+        waitTest.until(ExpectedConditions.attributeToBe(By.className
+                ("n-filter-applied-results__content"), "style", "height: auto;"));
+        List<WebElement> goods = driver.findElements(By.className("_2w0qPDYwej"));
+        goods.get(goods.size() - 2).click();
+
+        // goes to the cart
+        waitTest.until(ExpectedConditions.visibilityOfElementLocated(By.linkText("Перейти в корзину")));
+        driver.findElement(By.linkText("Перейти в корзину")).click();
+
+        // check of "Until free delivery left" value
+        waitTest.until(ExpectedConditions.visibilityOfElementLocated(By.className("_3EX9adn_xp")));
+        WebElement deliveryMessage = driver.findElement(By.className("_3EX9adn_xp"));
+        Assert.assertTrue(deliveryMessage.getText().contains("До бесплатной доставки"),
+                "There is no message about free delivery");
+
+        int deliveryRemainSum = getMoneyValue(driver.findElement(By.className("voCFmXKfcL")).getText());
+        int goodsSum = getMoneyValue(driver.findElement(By.cssSelector("[data-auto=\"total-items\"]")).getText());
+        int deliverySum = getMoneyValue(driver.findElement(By.cssSelector("[data-auto=\"total-delivery\"]")).getText());
+        int totalSum = getMoneyValue(driver.findElement(By.cssSelector("[data-auto=\"total-price\"]")).getText());
+
+        Assert.assertEquals(totalSum, goodsSum + deliverySum,
+                "Total sum doesn't equal product price + delivery price.");
+        Assert.assertEquals(deliveryRemainSum, freeDeliverySum - goodsSum,
+                "\"Until free delivery left\" value doesn't equal " + freeDeliverySum + " - goods price.");
+
+        // add products until free delivery is achieved
+        while (deliveryRemainSum < freeDeliverySum){
+            driver.findElement(By.className("_3hWhO4rvmA")).click();
+            deliveryRemainSum += goodsSum;
+        }
+
+        // check that there is a message about free delivery
+        deliveryMessage = driver.findElement(By.className("_3EX9adn_xp"));
+        waitTest.until(ExpectedConditions.textToBePresentInElement(deliveryMessage, "Поздравляем"));
+        Assert.assertTrue(deliveryMessage.getText().contains("Вы получили бесплатную доставку"),
+                "There is no message about free delivery");
+        goodsSum = getMoneyValue(driver.findElement(By.cssSelector("[data-auto=\"total-items\"]")).getText());
+        totalSum = getMoneyValue(driver.findElement(By.cssSelector("[data-auto=\"total-price\"]")).getText());
+
+        Assert.assertEquals(totalSum, goodsSum, "Total sum doesn't equal products sum.");
+    }
+
+    private int getMoneyValue(String s){
+        s = s.replaceAll("\\(.*\\)|\\D", "");
+        return Integer.valueOf(s);
     }
 
     private int getResultNumFromPopup(String s)
