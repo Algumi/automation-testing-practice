@@ -1,115 +1,66 @@
-import com.google.gson.JsonObject;
-import io.github.bonigarcia.wdm.WebDriverManager;
+import beru.DriverSettings;
+import beru.LoginPage;
+import beru.MainPage;
+import beru.UserSettingsPage;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import java.util.List;
 
 
-public class MainTests {
-    private WebDriver driver;
-    private WebDriverWait waitTest;
+public class MainTests extends DriverSettings {
+    @DataProvider(name = "cityChangeTest")
+    public Object[][] createData(){
+        return new Object[][]{
+                {"Хвалынск"},
+                {"Саратов"}
+        };
+    }
     private static int productsOnThePage = 24;
     private static int priceFrom = 999, priceTo = 1999;
     private static int freeDeliverySum = 2499;
 
-    @BeforeClass
-    public static void setupClass() {
-        WebDriverManager.chromedriver().setup();
-    }
-
-    @BeforeMethod
-    public void setupTest() {
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.get("https://beru.ru/");
-        waitTest = new WebDriverWait(driver, 10);
-        //driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
-    }
-
     @Test
     public void signInTest() {
-        // preforms steps to sign in
-        SignInSteps.signIn(driver);
+        MainPage main = new MainPage(getDriver(), getWait());
+        main.clickLoginButton();
 
-        // Test of changing button text from "Войти в аккаунт" to "Мой профиль"
-        WebElement profileName = waitTest.until
-                (ExpectedConditions.presenceOfElementLocated(By.className("header2__nav")));
-        Assert.assertEquals(profileName.getText(),"Мой профиль",
-                "Button \"Войти в аккаунт\" was not changed to \"Мой профиль\".");
+        LoginPage login = new LoginPage(getDriver(), getWait());
+        login.enterLogin();
+        login.clickContinueButton();
+        login.enterPassword();
+        login.clickContinueButton();
 
-        
-        // Mouse over the My Profile button
-        Actions actor = new Actions(driver);
-        actor.moveToElement(profileName).build().perform();
-        // User name display test
-        WebElement userName = waitTest.until
-                (ExpectedConditions.presenceOfElementLocated(By.className("header2-user-menu__user-name")));
-        Assert.assertEquals(userName.getText(), "Тест Авто",
-                "Button \"Войти в аккаунт\" was not changed to \"Мой профиль\"." + userName.getText());
+        main.checkMyProfile();
+        main.checkLoginName();
     }
 
-    private static String newCityName = "Хвалынск";
+    @Test(dataProvider = "cityChangeTest")
+    public void cityChangeTest(String newCityName) {
+        MainPage main = new MainPage(getDriver(), getWait());
+        main.clickCityName();
+        main.enterCityName(newCityName);
+        main.checkCityName(newCityName);
 
-    @Test
-    public void cityChangeTest() {
-        // element with city name on the top of the main page
-        WebElement cityLine = driver.findElement(By.className("region-form-opener"))
-                .findElement(By.className("link__inner"));
-        cityLine.click();
+        main.clickLoginButton();
+        LoginPage login = new LoginPage(getDriver(), getWait());
+        login.enterLogin();
+        login.clickContinueButton();
+        login.enterPassword();
+        login.clickContinueButton();
 
-        // city input popup
-        WebElement cityPopup = waitTest.until
-                (ExpectedConditions.presenceOfElementLocated(By.className("region-select-form")));
-        // city input field
-        WebElement cityField = cityPopup.findElement(By.className("input__control"));
-        cityField.sendKeys(newCityName);
-        // wait until entered text is displayed on popup
-        waitTest.until(ExpectedConditions.textToBePresentInElement(cityPopup, newCityName));
-        // submit changes
-        cityField.sendKeys(Keys.ENTER);
-        cityPopup.submit();
-
-        // wait until page loading is complete (footer social media elements are always loaded last)
-        waitTest.until(ExpectedConditions.visibilityOfElementLocated(By.className("footer__social-media")));
-        // city name line on the top of the main page
-        cityLine = driver.findElement(By.className("region-form-opener")).findElement(By.className("link__inner"));
-        // test of city name changes
-        Assert.assertEquals(newCityName, cityLine.getText(),
-                "City name on main page wasn't changed to" + newCityName);
-
-        // preforms steps to sign in
-        SignInSteps.signIn(driver);
-
-        // goes to account settings
-        Actions actor = new Actions(driver);
-        WebElement myProfile = waitTest.until
-                (ExpectedConditions.presenceOfElementLocated(By.className("header2__nav")));
-        actor.moveToElement(myProfile).build().perform();
-        waitTest.until(ExpectedConditions.presenceOfElementLocated(By.className("header2-user-menu")));
-        driver.findElement(By.className("header2-user-menu")).findElement(By.linkText("Настройки")).click();
-        // city name on settings page
-        WebElement myCity = waitTest.until(ExpectedConditions.presenceOfElementLocated
-                (By.className("settings-list__title"))).findElement(By.className("link__inner"));
-        cityLine = driver.findElement(By.className("region-form-opener")).findElement(By.className("link__inner"));
-
-        Assert.assertEquals(cityLine.getText(), myCity.getText(),
-                "City name on the top of the page is not equal to the city name in settings.");
-
-
+        main.clickSettingsButton();
+        UserSettingsPage settings = new UserSettingsPage(getDriver());
+        settings.checkCityName(newCityName);
     }
 
     @Test
@@ -119,7 +70,7 @@ public class MainTests {
 
         // waiting for opening the list of categories
         WebElement categoryList = waitTest.until
-                (ExpectedConditions.presenceOfElementLocated(By.className("popup2__content")));
+                (ExpectedConditions.visibilityOfElementLocated(By.className("popup2__content")));
         // Mouse over beauty and hygiene category
         Actions actor = new Actions(driver);
         actor.moveToElement(categoryList.findElement(By.linkText("Красота и гигиена"))).build().perform();
@@ -233,10 +184,5 @@ public class MainTests {
         s = s.substring(8);
         s = s.substring(0, s.indexOf(' '));
         return Integer.valueOf(s);
-    }
-    //@AfterTest()
-    public void closeBrowser()
-    {
-        driver.close();
     }
 }
