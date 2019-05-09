@@ -20,6 +20,11 @@ public class MainPage{
     private By cityInputField = By.cssSelector(".header2-region-popup .input__control");
     private By citySuggestList = By.className("region-suggest__list-item");
     private By profileMenuPopup = By.className("header2-user-menu");
+    private By catalogButton = By.className("header2__navigation");
+    private By catalogPopup = By.className("popup2__content");
+    private By beautyAndHygieneCategory = By.linkText("Красота и гигиена");
+    private By electricToothbrushesCategory = By.linkText("Электрические зубные щетки");
+
 
     public MainPage(WebDriver driver, WebDriverWait wait){
         this.driver = driver;
@@ -78,5 +83,19 @@ public class MainPage{
         actor.moveToElement(myProfile).build().perform();
         waitTest.until(ExpectedConditions.visibilityOfElementLocated(userEmail));
         driver.findElement(profileMenuPopup).findElement(By.linkText("Настройки")).click();
+    }
+
+    public void clickCatalogButton(){
+        driver.findElement(catalogButton).click();
+    }
+
+    public void clickToothbrushSection(){
+        // waiting for opening the list of categories
+        WebElement categoryList = waitTest.until(ExpectedConditions.visibilityOfElementLocated(catalogPopup));
+        // Mouse over beauty and hygiene category
+        Actions actor = new Actions(driver);
+        actor.moveToElement(categoryList.findElement(beautyAndHygieneCategory)).build().perform();
+        // click on electric toothbrushes subcategory
+        driver.findElement(electricToothbrushesCategory).click();
     }
 }

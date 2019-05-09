@@ -18,7 +18,7 @@ public class DriverSettings {
     private WebDriverWait waitTest;
 
     @BeforeClass
-    public static void setupClass() { WebDriverManager.chromedriver().setup();}
+    public void setupClass() { WebDriverManager.chromedriver().setup();}
 
     @BeforeMethod
     public void setupTest() {
@@ -26,7 +26,7 @@ public class DriverSettings {
         driver.manage().window().maximize();
         driver.get("https://beru.ru/");
         waitTest = new WebDriverWait(driver, 10);
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
     }
 
     protected WebDriver getDriver(){

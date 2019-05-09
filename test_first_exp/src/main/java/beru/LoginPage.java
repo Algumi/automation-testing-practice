@@ -2,19 +2,16 @@ package beru;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class LoginPage {
     private WebDriver driver;
-    private WebDriverWait waitTest;
 
     private By loginInput = By.id("passp-field-login");
     private By passwordInput = By.id("passp-field-passwd");
     private By continueButton = By.className("passp-sign-in-button");
 
-    public LoginPage(WebDriver driver, WebDriverWait wait){
+    public LoginPage(WebDriver driver){
         this.driver = driver;
-        this.waitTest = wait;
     }
 
     public void enterLogin(){
