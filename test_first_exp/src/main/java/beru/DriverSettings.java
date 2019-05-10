@@ -18,7 +18,9 @@ public class DriverSettings {
     private WebDriverWait waitTest;
 
     @BeforeClass
-    public void setupClass() { WebDriverManager.chromedriver().setup();}
+    public void setupClass() {
+        WebDriverManager.chromedriver().setup();
+    }
 
     @BeforeMethod
     public void setupTest() {
@@ -29,17 +31,16 @@ public class DriverSettings {
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
     }
 
-    protected WebDriver getDriver(){
+    protected WebDriver getDriver() {
         return driver;
     }
 
-    protected WebDriverWait getWait(){
+    protected WebDriverWait getWait() {
         return waitTest;
     }
 
     @AfterMethod
-    public void closeBrowser()
-    {
+    public void closeBrowser() {
         WebElement profileName = waitTest.until
                 (ExpectedConditions.visibilityOfElementLocated(By.className("header2__nav")));
         if (profileName.getText().equals("Мой профиль")){

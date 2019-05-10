@@ -1,5 +1,6 @@
 package beru;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -9,7 +10,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-public class MainPage{
+public class MainPage {
     private WebDriver driver;
     private WebDriverWait waitTest;
 
@@ -26,22 +27,25 @@ public class MainPage{
     private By electricToothbrushesCategory = By.linkText("Электрические зубные щетки");
 
 
-    public MainPage(WebDriver driver, WebDriverWait wait){
+    public MainPage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
         this.waitTest = wait;
     }
 
-    public void clickLoginButton(){
+    @Step("Click on profile button to perform login")
+    public void clickLoginButton() {
         // opens the sign in page
         driver.findElement(profileHeader).click();
     }
 
-    public void checkMyProfile(){
+    @Step("Check profile header text")
+    public void checkMyProfile() {
         Assert.assertEquals(driver.findElement(profileHeader).getText(),"Мой профиль",
                 "Button \"Войти в аккаунт\" was not changed to \"Мой профиль\".");
     }
 
-    public void checkLoginName(){
+    @Step("Check user email in profile popup")
+    public void checkLoginName() {
         // Mouse over the My Profile button
         Actions actor = new Actions(driver);
         actor.moveToElement(driver.findElement(profileHeader)).build().perform();
@@ -51,13 +55,15 @@ public class MainPage{
                 "Incorrect user login is displayed.");
     }
 
-    public void clickCityName(){
+    @Step("Click on city name element")
+    public void clickCityName() {
         // element with city name on the top of the main page
         WebElement cityLine = driver.findElement(cityNameLine);
         cityLine.click();
     }
 
-    public void enterCityName(String newCityName){
+    @Step("Enter city new name in popup")
+    public void enterCityName(String newCityName) {
         // city input popup
         WebElement cityPopup = waitTest.until(ExpectedConditions.visibilityOfElementLocated(changeCityPopup));
         WebElement cityField = cityPopup.findElement(cityInputField);
@@ -68,7 +74,8 @@ public class MainPage{
         cityPopup.submit();
     }
 
-    public void checkCityName(String newCityName){
+    @Step("Check displayed city name")
+    public void checkCityName(String newCityName) {
         // wait until page loading is complete (footer social media elements are always loaded last)
         waitTest.until(ExpectedConditions.visibilityOfElementLocated(By.className("footer__social-media")));
         // test of city name changes
@@ -76,7 +83,8 @@ public class MainPage{
                 "City name on main page wasn't changed.");
     }
 
-    public void clickSettingsButton(){
+    @Step("Click on settings button")
+    public void clickSettingsButton() {
         // goes to account settings
         Actions actor = new Actions(driver);
         WebElement myProfile = waitTest.until(ExpectedConditions.visibilityOfElementLocated(profileHeader));
@@ -85,11 +93,13 @@ public class MainPage{
         driver.findElement(profileMenuPopup).findElement(By.linkText("Настройки")).click();
     }
 
-    public void clickCatalogButton(){
+    @Step("Click on catalog button")
+    public void clickCatalogButton() {
         driver.findElement(catalogButton).click();
     }
 
-    public void clickToothbrushSection(){
+    @Step("Click on electric toothbrushes subcategory")
+    public void clickToothbrushSection() {
         // waiting for opening the list of categories
         WebElement categoryList = waitTest.until(ExpectedConditions.visibilityOfElementLocated(catalogPopup));
         // Mouse over beauty and hygiene category

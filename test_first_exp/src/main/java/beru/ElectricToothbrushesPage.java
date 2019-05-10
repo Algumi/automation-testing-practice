@@ -1,5 +1,6 @@
 package beru;
 
+import io.qameta.allure.Step;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.openqa.selenium.By;
@@ -28,28 +29,31 @@ public class ElectricToothbrushesPage {
 
     private static int priceFrom = 999, priceTo = 1999;
 
-    public ElectricToothbrushesPage(WebDriver driver, WebDriverWait wait){
+    public ElectricToothbrushesPage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
         this.waitTest = wait;
     }
 
-    public void enterPriceLimits(){
+    @Step("Enter price limits for filtering")
+    public void enterPriceLimits() {
         driver.findElement(priceFromInput).sendKeys(String.valueOf(priceFrom));
         driver.findElement(priceToInput).sendKeys(String.valueOf(priceTo));
     }
 
-    public int getBrushesQuantity(){
+    @Step("Get quantity of filtered brushes from popup")
+    public int getBrushesQuantity() {
         // waiting for displaying search results
         WebElement searchResult = waitTest.until(ExpectedConditions.visibilityOfElementLocated(searchResultPopup));
         return getResultNumFromPopup(searchResult.getText());
     }
 
-    public void checkAllBrushes(int expectedQuantity){
+    @Step("Check all brushes prices in search result table")
+    public void checkAllBrushes(int expectedQuantity) {
         boolean nextBtnIsPresent = true;
         int actualGoodsQuantity = 0;
 
         // going through all the goods and checking their price
-        while(nextBtnIsPresent){
+        while(nextBtnIsPresent) {
             // waiting for page of goods loading
             waitTest.until(ExpectedConditions.attributeToBe(tableOfGoods, "style", "height: auto;"));
 
@@ -61,14 +65,15 @@ public class ElectricToothbrushesPage {
             // checking all the goods on the current page
             for (WebElement product : goods) {
                 // Reads json info about the product
-                String bem_str = product.getAttribute("data-bem");
+                String bemStr = product.getAttribute("data-bem");
                 try {
-                    JSONObject obj = new JSONObject(bem_str);
+                    JSONObject obj = new JSONObject(bemStr);
                     int price = obj.getJSONObject("grid-snippet").getInt("price");
                     // fail test if there were any goods with incorrect price
                     Assert.assertTrue(price >= priceFrom && price <= priceTo,
                             "There was a good with price that doesn't belong to the price range.");
-                } catch (JSONException e) {
+                }
+                catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
@@ -80,9 +85,10 @@ public class ElectricToothbrushesPage {
                 "Number of goods in the popup info doesn't match the number of goods found on the result pages.");
     }
 
-    public void addPenultimateBrush(){
+    @Step("Add penultimate brush to the cart")
+    public void addPenultimateBrush() {
         // need to buy penultimate product in the list (if there is only 1 product on the last page)
-        if (driver.findElements(productInTheTable).size() == 1){
+        if (driver.findElements(productInTheTable).size() == 1) {
             WebElement prevPageGoods = driver.findElement(previousPageButton);
             prevPageGoods.click();
         }
@@ -93,14 +99,14 @@ public class ElectricToothbrushesPage {
         goods.get(goods.size() - 2).click();
     }
 
-    public void clickCartButton(){
+    @Step("Click on go to the cart button")
+    public void clickCartButton() {
         waitTest.until(ExpectedConditions.textToBePresentInElementLocated
                         (productAddedToCartPopup, "Товар добавлен в корзину!"));
         driver.findElement(goToCartButton).click();
     }
 
-    private int getResultNumFromPopup(String s)
-    {
+    private int getResultNumFromPopup(String s) {
         s = s.replaceAll("\\D", "");
         return Integer.valueOf(s);
     }

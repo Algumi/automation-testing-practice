@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results ignored="0" total="4" passed="4" failed="0" skipped="0">
+  <reporter-output>
+  </reporter-output>
+  <suite started-at="2019-05-10T15:44:16Z" name="Surefire suite" finished-at="2019-05-10T15:45:31Z" duration-ms="74809">
+    <groups>
+    </groups>
+    <test started-at="2019-05-10T15:44:16Z" name="Surefire test" finished-at="2019-05-10T15:45:31Z" duration-ms="74809">
+      <class name="MainTests">
+        <test-method is-config="true" signature="setupClass()[pri:0, instance:MainTests@3b0ca5e1]" started-at="2019-05-10T15:44:16Z" name="setupClass" finished-at="2019-05-10T15:44:17Z" duration-ms="865" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setupClass -->
+        <test-method is-config="true" signature="setupTest()[pri:0, instance:MainTests@3b0ca5e1]" started-at="2019-05-10T15:44:17Z" name="setupTest" finished-at="2019-05-10T15:44:23Z" duration-ms="6146" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setupTest -->
+        <test-method signature="cityChangeTest(java.lang.String)[pri:0, instance:MainTests@3b0ca5e1]" started-at="2019-05-10T15:44:24Z" name="cityChangeTest" data-provider="cityChangeTest" finished-at="2019-05-10T15:44:30Z" duration-ms="6675" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[Хвалынск]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- cityChangeTest -->
+        <test-method is-config="true" signature="closeBrowser()[pri:0, instance:MainTests@3b0ca5e1]" started-at="2019-05-10T15:44:30Z" name="closeBrowser" finished-at="2019-05-10T15:44:34Z" duration-ms="3465" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- closeBrowser -->
+        <test-method is-config="true" signature="setupTest()[pri:0, instance:MainTests@3b0ca5e1]" started-at="2019-05-10T15:44:34Z" name="setupTest" finished-at="2019-05-10T15:44:39Z" duration-ms="5766" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setupTest -->
+        <test-method signature="cityChangeTest(java.lang.String)[pri:0, instance:MainTests@3b0ca5e1]" started-at="2019-05-10T15:44:39Z" name="cityChangeTest" data-provider="cityChangeTest" finished-at="2019-05-10T15:44:46Z" duration-ms="6995" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[Саратов]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- cityChangeTest -->
+        <test-method is-config="true" signature="closeBrowser()[pri:0, instance:MainTests@3b0ca5e1]" started-at="2019-05-10T15:44:46Z" name="closeBrowser" finished-at="2019-05-10T15:44:50Z" duration-ms="3373" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- closeBrowser -->
+        <test-method is-config="true" signature="setupTest()[pri:0, instance:MainTests@3b0ca5e1]" started-at="2019-05-10T15:44:50Z" name="setupTest" finished-at="2019-05-10T15:44:55Z" duration-ms="5025" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setupTest -->
+        <test-method signature="shoppingTest()[pri:0, instance:MainTests@3b0ca5e1]" started-at="2019-05-10T15:44:55Z" name="shoppingTest" finished-at="2019-05-10T15:45:15Z" duration-ms="20271" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- shoppingTest -->
+        <test-method is-config="true" signature="closeBrowser()[pri:0, instance:MainTests@3b0ca5e1]" started-at="2019-05-10T15:45:15Z" name="closeBrowser" finished-at="2019-05-10T15:45:15Z" duration-ms="75" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- closeBrowser -->
+        <test-method is-config="true" signature="setupTest()[pri:0, instance:MainTests@3b0ca5e1]" started-at="2019-05-10T15:45:15Z" name="setupTest" finished-at="2019-05-10T15:45:21Z" duration-ms="5528" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setupTest -->
+        <test-method signature="signInTest()[pri:0, instance:MainTests@3b0ca5e1]" started-at="2019-05-10T15:45:21Z" name="signInTest" finished-at="2019-05-10T15:45:27Z" duration-ms="5912" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- signInTest -->
+        <test-method is-config="true" signature="closeBrowser()[pri:0, instance:MainTests@3b0ca5e1]" started-at="2019-05-10T15:45:27Z" name="closeBrowser" finished-at="2019-05-10T15:45:31Z" duration-ms="4537" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- closeBrowser -->
+      </class> <!-- MainTests -->
+    </test> <!-- Surefire test -->
+  </suite> <!-- Surefire suite -->
+</testng-results>
